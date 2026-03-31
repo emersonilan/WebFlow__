@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Tarefa</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      width: 320px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+    }
+
+    a {
+      display: block;
+      margin-top: 10px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>✏️ Editar Tarefa</h2>
+
+  <form method="POST">
+    <input name="title" value="{{ task.title }}" required>
+
+    <input type="date" name="deadline"
+      value="{{ task.deadline.strftime('%Y-%m-%d') if task.deadline else '' }}">
+
+    <button type="submit">Salvar</button>
+  </form>
+
+  <a href="/">⬅ Voltar</a>
+
+</div>
+
+</body>
+</html>

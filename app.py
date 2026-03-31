@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "segredo_super_secreto"
@@ -10,20 +11,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# 👤 tabela de usuários
+# 👤 usuário
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
 
-# 📌 tabela de tarefas
+# 📌 tarefa
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     done = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    deadline = db.Column(db.DateTime)
 
-# 🔥 CORREÇÃO DO ERRO (executar uma vez)
+# 🔥 recriar banco (use só se precisar corrigir erro)
 with app.app_context():
     db.create_all()
 
@@ -72,7 +74,7 @@ def index():
         return redirect('/login')
 
     tasks = Task.query.filter_by(user_id=session['user_id']).all()
-    return render_template('index.html', tasks=tasks)
+    return render_template('index.html', tasks=tasks, now=datetime.now())
 
 # ➕ adicionar tarefa
 @app.route('/add', methods=['POST'])
@@ -80,31 +82,70 @@ def add():
     if 'user_id' not in session:
         return redirect('/login')
 
+    deadline = request.form.get('deadline')
+
     task = Task(
         title=request.form['title'],
-        user_id=session['user_id']
+        user_id=session['user_id'],
+        deadline=datetime.strptime(deadline, "%Y-%m-%d") if deadline else None
     )
+
     db.session.add(task)
     db.session.commit()
     return redirect('/')
 
-# ✔ concluir
+# ✔ concluir tarefa
 @app.route('/done/<int:id>')
 def done(id):
+    if 'user_id' not in session:
+        return redirect('/login')
+
     task = Task.query.get(id)
-    if task:
+
+    # 🔒 garante que a tarefa é do usuário logado
+    if task and task.user_id == session['user_id']:
         task.done = not task.done
         db.session.commit()
+
     return redirect('/')
 
-# ❌ deletar
+# ❌ deletar tarefa
 @app.route('/delete/<int:id>')
 def delete(id):
+    if 'user_id' not in session:
+        return redirect('/login')
+
     task = Task.query.get(id)
-    if task:
+
+    # 🔒 segurança
+    if task and task.user_id == session['user_id']:
         db.session.delete(task)
         db.session.commit()
+
     return redirect('/')
+
+# ✏️ editar tarefa
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    task = Task.query.get(id)
+
+    # 🔒 segurança
+    if not task or task.user_id != session['user_id']:
+        return redirect('/')
+
+    if request.method == 'POST':
+        task.title = request.form['title']
+
+        deadline = request.form.get('deadline')
+        task.deadline = datetime.strptime(deadline, "%Y-%m-%d") if deadline else None
+
+        db.session.commit()
+        return redirect('/')
+
+    return render_template('edit.html', task=task)
 
 if __name__ == '__main__':
     app.run(debug=True)
