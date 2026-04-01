@@ -10,13 +10,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# 👤 usuário
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
 
-# 📌 tarefa
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -27,7 +25,6 @@ class Task(db.Model):
 with app.app_context():
     db.create_all()
 
-# 🔐 registro
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -40,7 +37,6 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
-# 🔑 login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -59,13 +55,11 @@ def login():
 
     return render_template('login.html', error=error)
 
-# 🚪 logout
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
 
-# 🏠 home com ordenação
 @app.route('/')
 def index():
     if 'user_id' not in session:
@@ -84,14 +78,21 @@ def index():
 
     tasks = query.all()
 
+    total = len(tasks)
+    done = len([t for t in tasks if t.done])
+
+    progress = int((done / total) * 100) if total > 0 else 0
+
     return render_template(
         'index.html',
         tasks=tasks,
         now=datetime.now(),
-        order=order
+        order=order,
+        progress=progress,
+        total=total,
+        done=done
     )
 
-# ➕ adicionar
 @app.route('/add', methods=['POST'])
 def add():
     if 'user_id' not in session:
@@ -109,9 +110,8 @@ def add():
     db.session.commit()
     return redirect('/')
 
-# ✔ concluir
 @app.route('/done/<int:id>')
-def done(id):
+def done_task(id):
     if 'user_id' not in session:
         return redirect('/login')
 
@@ -122,7 +122,6 @@ def done(id):
 
     return redirect('/')
 
-# ❌ deletar
 @app.route('/delete/<int:id>')
 def delete(id):
     if 'user_id' not in session:
@@ -135,7 +134,6 @@ def delete(id):
 
     return redirect('/')
 
-# ✏️ editar
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
     if 'user_id' not in session:
