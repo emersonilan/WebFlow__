@@ -1,247 +1,234 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial;
-      margin: 0;
-      padding: 10px;
-      transition: 0.3s;
-    }
+<!-- 🔥 SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    body.light {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-    }
+<style>
+body {
+  font-family: Arial;
+  margin:0;
+  padding:10px;
+}
 
-    body.dark {
-      background: #121212;
-      color: white;
-    }
+body.light {
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  color: #000;
+}
 
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
+body.dark {
+  background:#121212;
+  color:#e0e0e0;
+}
 
-    body.dark .container {
-      background: #1e1e1e;
-    }
+.container {
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  max-width:500px;
+  margin:auto;
+}
 
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+body.dark .container {
+  background:#1e1e1e;
+}
 
-    h2 {
-      text-align: center;
-      margin: 15px 0;
-    }
+.task {
+  background:#f5f5f5;
+  padding:12px;
+  border-radius:10px;
+  margin:10px 0;
+  color:#000;
+}
 
-    .toggle {
-      cursor: pointer;
-      font-size: 18px;
-    }
+body.dark .task {
+  background:#2a2a2a;
+  color:#ffffff;
+}
 
-    /* 📱 FORM RESPONSIVO */
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+.task.done {
+  background:#d4edda;
+  color:#155724;
+}
 
-    input {
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
+body.dark .task.done {
+  background:#1f3d2b;
+  color:#8bc34a;
+}
 
-    body.dark input {
-      background: #333;
-      color: white;
-      border: none;
-    }
+.task.overdue {
+  background:#f8d7da;
+  color:#721c24;
+}
 
-    button {
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      background: #667eea;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
+body.dark .task.overdue {
+  background:#4a1f1f;
+  color:#ff8a80;
+}
 
-    /* 📦 TAREFAS */
-    .task {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      background: #f5f5f5;
-    }
+.task small {
+  color:#555;
+}
 
-    body.dark .task {
-      background: #2a2a2a;
-    }
+body.dark .task small {
+  color:#bbb;
+}
 
-    .task.done {
-      background: #d4edda;
-    }
+input {
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin-bottom:8px;
+}
 
-    .task.overdue {
-      background: #f8d7da;
-    }
+body.dark input {
+  background:#333;
+  color:white;
+  border:none;
+}
 
-    .left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-    }
+button {
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#667eea;
+  color:white;
+  cursor:pointer;
+}
 
-    .check {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid #aaa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+a {
+  margin-left:5px;
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+}
 
-    .task.done .check {
-      background: #28a745;
-      color: white;
-      border: none;
-    }
-
-    .text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .deadline {
-      font-size: 12px;
-      color: #666;
-    }
-
-    /* 🔘 BOTÕES GRANDES PRA TOQUE */
-    .actions a {
-      font-size: 20px;
-      margin-left: 10px;
-    }
-
-    /* 📱 MELHORIAS MOBILE */
-    @media (max-width: 500px) {
-      body {
-        padding: 5px;
-      }
-
-      .container {
-        padding: 15px;
-        border-radius: 12px;
-      }
-
-      h2 {
-        font-size: 20px;
-      }
-
-      .task {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-
-      .actions {
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-      }
-    }
-  </style>
+select {
+  padding:8px;
+  border-radius:8px;
+  margin-left:10px;
+}
+</style>
 </head>
 
-<body class="light">
+<body>
 
 <div class="container">
 
-  <div class="top">
-    <a href="/logout">Sair</a>
-    <span class="toggle" onclick="toggleTheme()">🌙</span>
-  </div>
-
-  <h2>📝 Tarefas</h2>
-
-  <form method="POST" action="/add">
-    <input name="title" placeholder="Nova tarefa..." required>
-    <input type="date" name="deadline">
-    <button>Adicionar</button>
-  </form>
-
-  {% for task in tasks %}
-  <div class="task 
-    {% if task.done %}done{% endif %}
-    {% if task.deadline and not task.done and task.deadline < now %}overdue{% endif %}
-  ">
-
-    <div class="left">
-      <div class="check">
-        {% if task.done %}✔{% endif %}
-      </div>
-
-      <div class="text">
-        <span>{{ task.title }}</span>
-
-        {% if task.deadline %}
-        <span class="deadline">
-          📅 {{ task.deadline.strftime('%d/%m/%Y') }}
-        </span>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="actions">
-  <a href="/edit/{{ task.id }}">✏️</a>
-  <a href="/done/{{ task.id }}">✔</a>
-  <a href="/delete/{{ task.id }}">❌</a>
+<div style="display:flex; justify-content:space-between;">
+<a href="/logout">Sair</a>
+<span onclick="toggleTheme()">🌙</span>
 </div>
 
-  </div>
-  {% endfor %}
+<h2>Tarefas</h2>
+
+<!-- 🔎 BUSCA -->
+<input type="text" id="search" placeholder="Buscar tarefa..." onkeyup="searchTask()">
+
+<!-- 🔽 ORDENAÇÃO -->
+<form method="GET" style="margin-bottom:15px;">
+  <label>Ordenar por:</label>
+
+  <select name="order" onchange="this.form.submit()">
+    <option value="default">Padrão</option>
+    <option value="date" {% if order == 'date' %}selected{% endif %}>📅 Data</option>
+    <option value="name" {% if order == 'name' %}selected{% endif %}>🔤 Nome</option>
+    <option value="done" {% if order == 'done' %}selected{% endif %}>✅ Status</option>
+  </select>
+</form>
+
+<!-- ➕ NOVA TAREFA -->
+<form method="POST" action="/add">
+  <input name="title" placeholder="Nova tarefa..." required>
+  <input type="date" name="deadline">
+  <button type="submit">+</button>
+</form>
+
+<!-- 📋 LISTA -->
+{% for task in tasks %}
+<div class="task 
+{% if task.done %}done{% endif %}
+{% if task.deadline and not task.done and task.deadline < now %}overdue{% endif %}
+">
+
+<strong class="task-text">{{ task.title }}</strong>
+
+{% if task.deadline %}
+<br><small>📅 {{ task.deadline.strftime('%d/%m/%Y') }}</small>
+{% endif %}
+
+<div>
+  <a href="/edit/{{ task.id }}">✏️</a>
+  <a href="/done/{{ task.id }}">✔</a>
+  <a onclick="confirmDelete({{ task.id }})">❌</a>
+</div>
+
+</div>
+{% endfor %}
 
 </div>
 
 <script>
-function toggleTheme() {
+// 🌙 tema
+window.onload = function() {
+  const theme = localStorage.getItem("theme");
+
+  if (theme === "dark") {
+    document.body.classList.add("dark");
+  } else {
+    document.body.classList.add("light");
+  }
+};
+
+function toggleTheme(){
   const body = document.body;
 
-  if (body.classList.contains("light")) {
-    body.classList.replace("light", "dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    body.classList.replace("dark", "light");
+  if (body.classList.contains("dark")) {
+    body.classList.remove("dark");
+    body.classList.add("light");
     localStorage.setItem("theme", "light");
+  } else {
+    body.classList.remove("light");
+    body.classList.add("dark");
+    localStorage.setItem("theme", "dark");
   }
 }
 
-window.onload = () => {
-  const theme = localStorage.getItem("theme");
-  if (theme === "dark") {
-    document.body.classList.replace("light", "dark");
-  }
-};
+// 🔥 ALERTA BONITO
+function confirmDelete(id){
+  Swal.fire({
+    title: 'Tem certeza?',
+    text: "Essa tarefa será deletada!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sim, deletar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/delete/' + id;
+    }
+  });
+}
+
+// 🔎 BUSCA EM TEMPO REAL
+function searchTask() {
+  let input = document.getElementById("search").value.toLowerCase();
+  let tasks = document.querySelectorAll(".task");
+
+  tasks.forEach(task => {
+    let text = task.querySelector(".task-text").innerText.toLowerCase();
+
+    if (text.includes(input)) {
+      task.style.display = "block";
+    } else {
+      task.style.display = "none";
+    }
+  });
+}
 </script>
 
 </body>

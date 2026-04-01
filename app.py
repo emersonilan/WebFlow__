@@ -1,11 +1,10 @@
-from flask import Flask, render_template, request, redirect, session
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, session # type: ignore
+from flask_sqlalchemy import SQLAlchemy # type: ignore
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "segredo_super_secreto"
 
-# banco
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -25,7 +24,6 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     deadline = db.Column(db.DateTime)
 
-# 🔥 recriar banco (use só se precisar corrigir erro)
 with app.app_context():
     db.create_all()
 
@@ -67,16 +65,33 @@ def logout():
     session.clear()
     return redirect('/login')
 
-# 🏠 home
+# 🏠 home com ordenação
 @app.route('/')
 def index():
     if 'user_id' not in session:
         return redirect('/login')
 
-    tasks = Task.query.filter_by(user_id=session['user_id']).all()
-    return render_template('index.html', tasks=tasks, now=datetime.now())
+    order = request.args.get('order', 'default')
 
-# ➕ adicionar tarefa
+    query = Task.query.filter_by(user_id=session['user_id'])
+
+    if order == 'date':
+        query = query.order_by(Task.deadline.asc())
+    elif order == 'name':
+        query = query.order_by(Task.title.asc())
+    elif order == 'done':
+        query = query.order_by(Task.done.asc())
+
+    tasks = query.all()
+
+    return render_template(
+        'index.html',
+        tasks=tasks,
+        now=datetime.now(),
+        order=order
+    )
+
+# ➕ adicionar
 @app.route('/add', methods=['POST'])
 def add():
     if 'user_id' not in session:
@@ -94,37 +109,33 @@ def add():
     db.session.commit()
     return redirect('/')
 
-# ✔ concluir tarefa
+# ✔ concluir
 @app.route('/done/<int:id>')
 def done(id):
     if 'user_id' not in session:
         return redirect('/login')
 
     task = Task.query.get(id)
-
-    # 🔒 garante que a tarefa é do usuário logado
     if task and task.user_id == session['user_id']:
         task.done = not task.done
         db.session.commit()
 
     return redirect('/')
 
-# ❌ deletar tarefa
+# ❌ deletar
 @app.route('/delete/<int:id>')
 def delete(id):
     if 'user_id' not in session:
         return redirect('/login')
 
     task = Task.query.get(id)
-
-    # 🔒 segurança
     if task and task.user_id == session['user_id']:
         db.session.delete(task)
         db.session.commit()
 
     return redirect('/')
 
-# ✏️ editar tarefa
+# ✏️ editar
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
     if 'user_id' not in session:
@@ -132,7 +143,6 @@ def edit(id):
 
     task = Task.query.get(id)
 
-    # 🔒 segurança
     if not task or task.user_id != session['user_id']:
         return redirect('/')
 
