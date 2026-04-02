@@ -1,220 +1,319 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>To-Do List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: 0.3s;
-    }
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    /* 🌞 MODO CLARO */
-    body.light {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-    }
+<style>
+body {
+  font-family: Arial;
+  margin:0;
+  padding:20px;
+}
 
-    /* 🌙 MODO ESCURO */
-    body.dark {
-      background: #121212;
-      color: white;
-    }
+/* temas */
+body.light {
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  color: #000;
+}
 
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      width: 400px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      transition: 0.3s;
-    }
+body.dark {
+  background:#121212;
+  color:#e0e0e0;
+}
 
-    body.dark .container {
-      background: #1e1e1e;
-    }
+/* container */
+.container {
+  background:white;
+  padding:25px;
+  border-radius:18px;
+  max-width:520px;
+  margin:auto;
+}
 
-    h1 {
-      text-align: center;
-    }
+body.dark .container {
+  background:#1e1e1e;
+}
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
+/* header */
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
 
-    .toggle {
-      cursor: pointer;
-      font-size: 14px;
-    }
+/* busca */
+#search {
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin:15px 0 20px 0;
+  box-sizing:border-box;
+}
 
-    form {
-      display: flex;
-      gap: 10px;
-    }
+body.dark #search {
+  background:#333;
+  color:white;
+  border:none;
+}
 
-    input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+/* formulários */
+form {
+  margin-bottom:15px;
+}
 
-    body.dark input {
-      background: #333;
-      color: white;
-      border: none;
-    }
+/* inputs */
+input {
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-right:5px;
+}
 
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-    }
+body.dark input {
+  background:#333;
+  color:white;
+  border:none;
+}
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 20px;
-    }
+/* botões */
+button {
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#667eea;
+  color:white;
+  cursor:pointer;
+}
 
-    /* 🧠 NOVO DESIGN DAS TAREFAS */
-    .task {
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f7f7f7;
-      transition: 0.3s;
-    }
+/* select */
+select {
+  padding:10px;
+  border-radius:10px;
+  margin-left:10px;
+}
 
-    body.dark .task {
-      background: #2a2a2a;
-    }
+/* progresso */
+.progress-container {
+  margin-bottom:20px;
+}
 
-    .task.done {
-      background: #d4edda;
-    }
+.progress-bar-bg {
+  width:100%;
+  background:#ddd;
+  border-radius:10px;
+  height:12px;
+  margin-top:5px;
+}
 
-    body.dark .task.done {
-      background: #1f3d2b;
-    }
+.progress-bar-fill {
+  height:100%;
+  background:#667eea;
+  border-radius:10px;
+  transition:0.3s;
+}
 
-    .task-text {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+/* tarefas */
+.task {
+  background:#f5f5f5;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+  color:#000;
+  transition:0.2s;
+}
 
-    .check {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid #999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
+.task:hover {
+  transform: scale(1.02);
+}
 
-    .task.done .check {
-      background: #28a745;
-      border: none;
-      color: white;
-    }
+body.dark .task {
+  background:#2a2a2a;
+  color:#fff;
+}
 
-    .task.done span {
-      color: #2e7d32;
-    }
+/* estados */
+.task.done {
+  background:#d4edda;
+  color:#155724;
+}
 
-    body.dark .task.done span {
-      color: #8bc34a;
-    }
+body.dark .task.done {
+  background:#1f3d2b;
+  color:#8bc34a;
+}
 
-    .actions a {
-      margin-left: 8px;
-      text-decoration: none;
-      font-size: 18px;
-    }
+.task.overdue {
+  background:#f8d7da;
+  color:#721c24;
+}
 
-    a {
-      text-decoration: none;
-    }
-  </style>
+body.dark .task.overdue {
+  background:#4a1f1f;
+  color:#ff8a80;
+}
+
+/* texto */
+.task-text {
+  display:block;
+  font-size:16px;
+  margin-bottom:8px;
+}
+
+/* data */
+.task small {
+  display:block;
+  margin-bottom:10px;
+  color:#555;
+}
+
+body.dark .task small {
+  color:#bbb;
+}
+
+/* ações */
+.actions {
+  display:flex;
+  gap:10px;
+}
+
+a {
+  text-decoration:none;
+  cursor:pointer;
+}
+
+/* responsivo */
+@media (max-width:500px) {
+  input, button {
+    width:100%;
+    margin-bottom:8px;
+  }
+
+  .actions {
+    justify-content:space-between;
+  }
+}
+</style>
 </head>
 
-<body class="light">
+<body>
 
 <div class="container">
 
-  <div class="top-bar">
-    <a href="/logout">Sair</a>
-    <span class="toggle" onclick="toggleTheme()">🌙</span>
+<div class="header">
+  <a href="/logout">Sair</a>
+  <span onclick="toggleTheme()">🌙</span>
+</div>
+
+<h2>Tarefas</h2>
+
+<!-- 📊 PROGRESSO -->
+<div class="progress-container">
+  <strong>Progresso: {{ progress }}%</strong>
+
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" style="width: {{ progress }}%;"></div>
   </div>
 
-  <h1>📝 Minhas Tarefas</h1>
+  <small>{{ done }} de {{ total }} concluídas</small>
+</div>
 
-  <form action="/add" method="POST">
-    <input name="title" placeholder="Nova tarefa..." required>
-    <button type="submit">+</button>
-  </form>
+<!-- 🔎 BUSCA -->
+<input type="text" id="search" placeholder="Buscar tarefa..." onkeyup="searchTask()">
 
-  <ul>
-    {% for task in tasks %}
-      <li class="task {% if task.done %}done{% endif %}">
+<!-- 🔽 ORDENAÇÃO -->
+<form method="GET">
+  <label>Ordenar por:</label>
+  <select name="order" onchange="this.form.submit()">
+    <option value="default">Padrão</option>
+    <option value="date" {% if order == 'date' %}selected{% endif %}>📅 Data</option>
+    <option value="name" {% if order == 'name' %}selected{% endif %}>🔤 Nome</option>
+    <option value="done" {% if order == 'done' %}selected{% endif %}>✅ Status</option>
+  </select>
+</form>
 
-        <div class="task-text">
-          <div class="check">
-            {% if task.done %}✔{% endif %}
-          </div>
+<!-- ➕ NOVA TAREFA -->
+<form method="POST" action="/add">
+  <input name="title" placeholder="Nova tarefa..." required>
+  <input type="date" name="deadline">
+  <button type="submit">+</button>
+</form>
 
-          <span>{{ task.title }}</span>
-        </div>
+<!-- 📋 LISTA -->
+{% for task in tasks %}
+<div class="task 
+{% if task.done %}done{% endif %}
+{% if task.deadline and not task.done and task.deadline < now %}overdue{% endif %}
+">
 
-        <div class="actions">
-          <a href="/done/{{ task.id }}">🔄</a>
-          <a href="/delete/{{ task.id }}">❌</a>
-        </div>
+<span class="task-text">{{ task.title }}</span>
 
-      </li>
-    {% endfor %}
-  </ul>
+{% if task.deadline %}
+<small>📅 {{ task.deadline.strftime('%d/%m/%Y') }}</small>
+{% endif %}
+
+<div class="actions">
+  <a href="/edit/{{ task.id }}">✏️</a>
+  <a href="/done/{{ task.id }}">✔</a>
+  <a onclick="confirmDelete({{ task.id }})">❌</a>
+</div>
+
+</div>
+{% endfor %}
 
 </div>
 
 <script>
-function toggleTheme() {
+// tema
+window.onload = function() {
+  const theme = localStorage.getItem("theme");
+  document.body.classList.add(theme === "dark" ? "dark" : "light");
+};
+
+function toggleTheme(){
   const body = document.body;
 
-  if (body.classList.contains("light")) {
-    body.classList.remove("light");
-    body.classList.add("dark");
-    localStorage.setItem("theme", "dark");
+  if (body.classList.contains("dark")) {
+    body.classList.replace("dark","light");
+    localStorage.setItem("theme","light");
   } else {
-    body.classList.remove("dark");
-    body.classList.add("light");
-    localStorage.setItem("theme", "light");
+    body.classList.replace("light","dark");
+    localStorage.setItem("theme","dark");
   }
 }
 
-// carregar tema salvo
-window.onload = () => {
-  const theme = localStorage.getItem("theme");
-  if (theme === "dark") {
-    document.body.classList.remove("light");
-    document.body.classList.add("dark");
-  }
-};
+// alerta deletar
+function confirmDelete(id){
+  Swal.fire({
+    title: 'Tem certeza?',
+    text: "Essa tarefa será deletada!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sim, deletar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = '/delete/' + id;
+    }
+  });
+}
+
+// busca
+function searchTask() {
+  let input = document.getElementById("search").value.toLowerCase();
+  let tasks = document.querySelectorAll(".task");
+
+  tasks.forEach(task => {
+    let text = task.querySelector(".task-text").innerText.toLowerCase();
+    task.style.display = text.includes(input) ? "block" : "none";
+  });
+}
 </script>
 
 </body>

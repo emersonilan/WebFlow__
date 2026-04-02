@@ -1,146 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cadastro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: 0.3s;
-    }
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
 
-    /* 🌞 MODO CLARO */
-    body.light {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-    }
+.container {
+  background:#1e1e1e;
+  padding:30px;
+  border-radius:18px;
+  width:320px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+  color:white;
+}
 
-    /* 🌙 MODO ESCURO */
-    body.dark {
-      background: #121212;
-      color: white;
-    }
+h2 {
+  text-align:center;
+  margin-bottom:20px;
+}
 
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      width: 320px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      text-align: center;
-      transition: 0.3s;
-    }
+input {
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border:none;
+  border-radius:10px;
+  background:#2a2a2a;
+  color:white;
+  box-sizing:border-box;
+}
 
-    body.dark .container {
-      background: #1e1e1e;
-    }
+button {
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#667eea;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
+}
 
-    h2 {
-      margin-bottom: 20px;
-    }
+button:hover {
+  background:#5a6fd6;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+a {
+  display:block;
+  text-align:center;
+  margin-top:15px;
+  color:#bbb;
+  text-decoration:none;
+}
 
-    body.dark input {
-      background: #333;
-      color: white;
-      border: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #5a67d8;
-    }
-
-    a {
-      display: block;
-      margin-top: 10px;
-      color: #667eea;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
-    }
-
-    .toggle {
-      cursor: pointer;
-      font-size: 14px;
-    }
-  </style>
+a:hover {
+  color:white;
+}
+</style>
 </head>
 
-<body class="light">
+<body>
 
 <div class="container">
 
-  <!-- 🌙 BOTÃO MODO ESCURO -->
-  <div class="top-bar">
-    <span class="toggle" onclick="toggleTheme()">🌙</span>
-  </div>
+<h2>Criar conta</h2>
 
-  <h2>📝 Cadastro</h2>
+<form method="POST">
+  <input name="username" placeholder="Usuário" required>
+  <input name="password" type="password" placeholder="Senha" required>
+  <button type="submit">Cadastrar</button>
+</form>
 
-  <form method="POST">
-    <input name="username" placeholder="Usuário" required>
-    <input name="password" type="password" placeholder="Senha" required>
-    <button type="submit">Cadastrar</button>
-  </form>
-
-  <a href="/login">Voltar para login</a>
+<a href="/login">Já tem conta? Entrar</a>
 
 </div>
-
-<script>
-function toggleTheme() {
-  const body = document.body;
-
-  if (body.classList.contains("light")) {
-    body.classList.remove("light");
-    body.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    body.classList.remove("dark");
-    body.classList.add("light");
-    localStorage.setItem("theme", "light");
-  }
-}
-
-// carregar tema salvo
-window.onload = () => {
-  const theme = localStorage.getItem("theme");
-  if (theme === "dark") {
-    document.body.classList.remove("light");
-    document.body.classList.add("dark");
-  }
-};
-</script>
 
 </body>
 </html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family:Arial; background:#121212; color:white; display:flex; justify-content:center; align-items:center; height:100vh; }
+.container { background:#1e1e1e; padding:30px; border-radius:15px; width:300px; }
+input, button { width:100%; padding:10px; margin-top:10px; border-radius:8px; border:none; }
+button { background:#667eea; color:white; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Editar tarefa</h2>
+
+<form method="POST">
+<input name="title" value="{{ task.title }}" required>
+<input type="date" name="deadline" value="{{ task.deadline.strftime('%Y-%m-%d') if task.deadline }}">
+<button type="submit">Salvar</button>
+</form>
+
+</div>
+
+</body>
+</html>
