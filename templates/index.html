@@ -3,7 +3,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
@@ -41,7 +40,6 @@ body.dark .container {
 .header {
   display:flex;
   justify-content:space-between;
-  align-items:center;
   margin-bottom:20px;
 }
 
@@ -51,8 +49,7 @@ body.dark .container {
   padding:12px;
   border-radius:10px;
   border:1px solid #ccc;
-  margin:15px 0 20px 0;
-  box-sizing:border-box;
+  margin:15px 0;
 }
 
 body.dark #search {
@@ -61,9 +58,50 @@ body.dark #search {
   border:none;
 }
 
-/* formulários */
-form {
+/* filtros */
+.filters {
+  display:flex;
+  gap:8px;
   margin-bottom:15px;
+  flex-wrap:wrap;
+}
+
+.filter-btn {
+  padding:8px 14px;
+  border-radius:12px;
+  border:1px solid transparent;
+  cursor:pointer;
+  background:#e0e0e0;
+  color:#333;
+  transition:0.2s;
+}
+
+.filter-btn:hover {
+  background:#d6d6d6;
+}
+
+.filter-btn.active {
+  background:#667eea;
+  color:white;
+}
+
+body.dark .filter-btn {
+  background:#2a2a2a;
+  color:#ccc;
+}
+
+body.dark .filter-btn:hover {
+  background:#3a3a3a;
+}
+
+body.dark .filter-btn.active {
+  background:#667eea;
+  color:white;
+}
+
+/* bloco adicionar tarefa */
+.add-task {
+  margin-bottom:25px;
 }
 
 /* inputs */
@@ -71,7 +109,6 @@ input {
   padding:12px;
   border-radius:10px;
   border:1px solid #ccc;
-  margin-right:5px;
 }
 
 body.dark input {
@@ -80,7 +117,6 @@ body.dark input {
   border:none;
 }
 
-/* botões */
 button {
   padding:12px;
   border:none;
@@ -90,31 +126,21 @@ button {
   cursor:pointer;
 }
 
-/* select */
-select {
-  padding:10px;
-  border-radius:10px;
-  margin-left:10px;
-}
-
 /* progresso */
-.progress-container {
+.progress {
   margin-bottom:20px;
 }
 
-.progress-bar-bg {
-  width:100%;
+.progress-bar {
   background:#ddd;
+  height:10px;
   border-radius:10px;
-  height:12px;
-  margin-top:5px;
 }
 
-.progress-bar-fill {
-  height:100%;
+.progress-fill {
   background:#667eea;
+  height:100%;
   border-radius:10px;
-  transition:0.3s;
 }
 
 /* tarefas */
@@ -123,12 +149,10 @@ select {
   padding:15px;
   border-radius:12px;
   margin-bottom:15px;
-  color:#000;
-  transition:0.2s;
 }
 
-.task:hover {
-  transform: scale(1.02);
+.task:first-of-type {
+  margin-top:10px;
 }
 
 body.dark .task {
@@ -136,17 +160,19 @@ body.dark .task {
   color:#fff;
 }
 
-/* estados */
+/* concluída */
 .task.done {
   background:#d4edda;
   color:#155724;
 }
 
 body.dark .task.done {
-  background:#1f3d2b;
-  color:#8bc34a;
+  background:#1b5e20;
+  color:#e8f5e9;
+  border-left:5px solid #4caf50;
 }
 
+/* atrasada */
 .task.overdue {
   background:#f8d7da;
   color:#721c24;
@@ -157,22 +183,9 @@ body.dark .task.overdue {
   color:#ff8a80;
 }
 
-/* texto */
 .task-text {
   display:block;
-  font-size:16px;
   margin-bottom:8px;
-}
-
-/* data */
-.task small {
-  display:block;
-  margin-bottom:10px;
-  color:#555;
-}
-
-body.dark .task small {
-  color:#bbb;
 }
 
 /* ações */
@@ -184,18 +197,6 @@ body.dark .task small {
 a {
   text-decoration:none;
   cursor:pointer;
-}
-
-/* responsivo */
-@media (max-width:500px) {
-  input, button {
-    width:100%;
-    margin-bottom:8px;
-  }
-
-  .actions {
-    justify-content:space-between;
-  }
 }
 </style>
 </head>
@@ -211,52 +212,57 @@ a {
 
 <h2>Tarefas</h2>
 
-<!-- 📊 PROGRESSO -->
-<div class="progress-container">
-  <strong>Progresso: {{ progress }}%</strong>
-
-  <div class="progress-bar-bg">
-    <div class="progress-bar-fill" style="width: {{ progress }}%;"></div>
+<!-- PROGRESSO -->
+<div class="progress">
+  <strong>{{ progress }}%</strong>
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: {{ progress }}%;"></div>
   </div>
-
   <small>{{ done }} de {{ total }} concluídas</small>
 </div>
 
-<!-- 🔎 BUSCA -->
-<input type="text" id="search" placeholder="Buscar tarefa..." onkeyup="searchTask()">
+<!-- BUSCA -->
+<input type="text" id="search" placeholder="Buscar..." onkeyup="applyFilters()">
 
-<!-- 🔽 ORDENAÇÃO -->
-<form method="GET">
-  <label>Ordenar por:</label>
-  <select name="order" onchange="this.form.submit()">
-    <option value="default">Padrão</option>
-    <option value="date" {% if order == 'date' %}selected{% endif %}>📅 Data</option>
-    <option value="name" {% if order == 'name' %}selected{% endif %}>🔤 Nome</option>
-    <option value="done" {% if order == 'done' %}selected{% endif %}>✅ Status</option>
-  </select>
-</form>
+<!-- FILTROS -->
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('all', event)">Todas</button>
+  <button class="filter-btn" onclick="setFilter('pending', event)">Pendentes</button>
+  <button class="filter-btn" onclick="setFilter('done', event)">Concluídas</button>
+  <button class="filter-btn" onclick="setFilter('date', event)">Por data</button>
+</div>
 
-<!-- ➕ NOVA TAREFA -->
-<form method="POST" action="/add">
-  <input name="title" placeholder="Nova tarefa..." required>
-  <input type="date" name="deadline">
-  <button type="submit">+</button>
-</form>
+<!-- NOVA TAREFA -->
+<div class="add-task">
+  <form method="POST" action="/add">
+    <input name="title" placeholder="Nova tarefa..." required>
+    <input type="date" name="deadline">
+    <button type="submit">+</button>
+  </form>
+</div>
 
-<!-- 📋 LISTA -->
+<!-- LISTA -->
 {% for task in tasks %}
 <div class="task 
 {% if task.done %}done{% endif %}
 {% if task.deadline and not task.done and task.deadline < now %}overdue{% endif %}
-">
+"
+data-done="{{ task.done }}"
+data-date="{{ task.deadline.strftime('%Y-%m-%d') if task.deadline else '' }}"
+>
 
-<span class="task-text">{{ task.title }}</span>
+<span class="task-text">
+  {% if task.done %}✅{% endif %}
+  {% if task.pinned %}📌{% endif %}
+  {{ task.title }}
+</span>
 
 {% if task.deadline %}
 <small>📅 {{ task.deadline.strftime('%d/%m/%Y') }}</small>
 {% endif %}
 
 <div class="actions">
+  <a href="/pin/{{ task.id }}">📍</a>
   <a href="/edit/{{ task.id }}">✏️</a>
   <a href="/done/{{ task.id }}">✔</a>
   <a onclick="confirmDelete({{ task.id }})">❌</a>
@@ -268,10 +274,52 @@ a {
 </div>
 
 <script>
+let currentFilter = "all";
+
+function setFilter(filter, event){
+  currentFilter = filter;
+
+  document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+  event.target.classList.add("active");
+
+  applyFilters();
+}
+
+function applyFilters(){
+  let search = document.getElementById("search").value.toLowerCase();
+  let tasks = Array.from(document.querySelectorAll(".task"));
+
+  tasks.forEach(task => {
+    let text = task.innerText.toLowerCase();
+    let done = task.dataset.done === "True";
+
+    let matchSearch = text.includes(search);
+
+    let matchFilter =
+      currentFilter === "all" ||
+      (currentFilter === "pending" && !done) ||
+      (currentFilter === "done" && done);
+
+    task.style.display = (matchSearch && matchFilter) ? "block" : "none";
+  });
+
+  if (currentFilter === "date") {
+    let container = document.querySelector(".container");
+
+    tasks.sort((a, b) => {
+      let da = a.dataset.date || "9999-12-31";
+      let db = b.dataset.date || "9999-12-31";
+      return da.localeCompare(db);
+    });
+
+    tasks.forEach(t => container.appendChild(t));
+  }
+}
+
 // tema
 window.onload = function() {
-  const theme = localStorage.getItem("theme");
-  document.body.classList.add(theme === "dark" ? "dark" : "light");
+  const theme = localStorage.getItem("theme") || "dark";
+  document.body.classList.add(theme);
 };
 
 function toggleTheme(){
@@ -286,32 +334,16 @@ function toggleTheme(){
   }
 }
 
-// alerta deletar
+// alerta
 function confirmDelete(id){
   Swal.fire({
     title: 'Tem certeza?',
-    text: "Essa tarefa será deletada!",
     icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#e74c3c',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Sim, deletar',
-    cancelButtonText: 'Cancelar'
+    showCancelButton: true
   }).then((result) => {
     if (result.isConfirmed) {
       window.location.href = '/delete/' + id;
     }
-  });
-}
-
-// busca
-function searchTask() {
-  let input = document.getElementById("search").value.toLowerCase();
-  let tasks = document.querySelectorAll(".task");
-
-  tasks.forEach(task => {
-    let text = task.querySelector(".task-text").innerText.toLowerCase();
-    task.style.display = text.includes(input) ? "block" : "none";
   });
 }
 </script>

@@ -24,7 +24,6 @@ class Task(db.Model):
     pinned = db.Column(db.Boolean, default=False)  # 📌 NOVO
 
 with app.app_context():
-    db.drop_all()   # ⚠️ só execute uma vez se necessário
     db.create_all()
 
 @app.route('/register', methods=['GET', 'POST'])
